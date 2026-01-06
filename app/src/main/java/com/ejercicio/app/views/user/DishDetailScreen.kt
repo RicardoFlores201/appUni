@@ -13,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -70,30 +71,49 @@ fun DishDetailScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Atrás",
-                            tint = Color.White
-                        )
+                    Surface(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(40.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color(0xFF0F1219).copy(alpha = 0.8f)
+                    ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Atrás",
+                                tint = Color.White
+                            )
+                        }
                     }
                 },
                 actions = {
-                    BadgedBox(
-                        badge = {
-                            if (cartVM.itemCount > 0) {
-                                Badge(containerColor = Color(0xFF4CAF50)) {
-                                    Text("${cartVM.itemCount}", fontSize = 10.sp)
+                    Surface(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(40.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color(0xFF0F1219).copy(alpha = 0.8f)
+                    ) {
+                        BadgedBox(
+                            badge = {
+                                if (cartVM.itemCount > 0) {
+                                    Badge(
+                                        containerColor = Color(0xFF4CAF50),
+                                        modifier = Modifier.offset(x = (-4).dp, y = 4.dp)
+                                    ) {
+                                        Text("${cartVM.itemCount}", fontSize = 10.sp)
+                                    }
                                 }
                             }
-                        }
-                    ) {
-                        IconButton(onClick = { navController.navigate(AppScreen.Cart.route) }) {
-                            Icon(
-                                Icons.Default.ShoppingCart,
-                                contentDescription = "Carrito",
-                                tint = Color.White
-                            )
+                        ) {
+                            IconButton(onClick = { navController.navigate(AppScreen.Cart.route) }) {
+                                Icon(
+                                    Icons.Default.ShoppingCart,
+                                    contentDescription = "Carrito",
+                                    tint = Color.White
+                                )
+                            }
                         }
                     }
                 },
@@ -103,63 +123,107 @@ fun DishDetailScreen(
             )
         },
         bottomBar = {
+            // Bottom Bar SIEMPRE VISIBLE
             if (dish != null) {
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .windowInsetsPadding(WindowInsets.navigationBars),
                     color = Color(0xFF0F1219),
-                    shadowElevation = 8.dp
+                    shadowElevation = 16.dp
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 20.dp, vertical = 16.dp)
                     ) {
-                        // Quantity selector
+                        // Selector de cantidad
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(
-                                onClick = { if (quantity > 1) quantity-- },
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .background(
-                                        if (quantity > 1) Color(0xFF1A2F2A) else Color(0xFF1A1F2E),
-                                        RoundedCornerShape(8.dp)
-                                    )
-                            ) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = "Menos",
-                                    tint = if (quantity > 1) Color(0xFF4CAF50) else Color(0xFF444444)
+                            // Cantidad
+                            Column {
+                                Text(
+                                    "Cantidad",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFF8B92A1)
                                 )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier = Modifier.padding(top = 8.dp)
+                                ) {
+                                    // Botón menos
+                                    IconButton(
+                                        onClick = { if (quantity > 1) quantity-- },
+                                        modifier = Modifier
+                                            .size(44.dp)
+                                            .background(
+                                                if (quantity > 1) Color(0xFF1A2F2A) else Color(0xFF1A1F2E),
+                                                RoundedCornerShape(12.dp)
+                                            )
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = "Menos",
+                                            tint = if (quantity > 1) Color(0xFF4CAF50) else Color(0xFF444444),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+
+                                    // Cantidad
+                                    Text(
+                                        text = "$quantity",
+                                        fontSize = 24.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        modifier = Modifier.widthIn(min = 40.dp)
+                                    )
+
+                                    // Botón más
+                                    IconButton(
+                                        onClick = { if (quantity < 10) quantity++ },
+                                        modifier = Modifier
+                                            .size(44.dp)
+                                            .background(
+                                                if (quantity < 10) Color(0xFF1A2F2A) else Color(0xFF1A1F2E),
+                                                RoundedCornerShape(12.dp)
+                                            )
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Add,
+                                            contentDescription = "Más",
+                                            tint = if (quantity < 10) Color(0xFF4CAF50) else Color(0xFF444444),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
                             }
 
-                            Text(
-                                text = "$quantity",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                modifier = Modifier.widthIn(min = 30.dp)
-                            )
-
-                            IconButton(
-                                onClick = { if (quantity < 10) quantity++ },
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .background(Color(0xFF1A2F2A), RoundedCornerShape(8.dp))
+                            // Precio total
+                            Column(
+                                horizontalAlignment = Alignment.End
                             ) {
-                                Icon(
-                                    Icons.Default.Add,
-                                    contentDescription = "Más",
-                                    tint = Color(0xFF4CAF50)
+                                Text(
+                                    "Total",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFF8B92A1)
+                                )
+                                Text(
+                                    text = "$${String.format("%.2f", (dish?.price ?: 0.0) * quantity)}",
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF4CAF50),
+                                    modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
                         }
 
-                        // Add to cart button
+                        Spacer(Modifier.height(16.dp))
+
+                        // Botón agregar al carrito
                         Button(
                             onClick = {
                                 dish?.let {
@@ -168,18 +232,25 @@ fun DishDetailScreen(
                                 }
                             },
                             modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 16.dp)
-                                .height(50.dp),
+                                .fillMaxWidth()
+                                .height(56.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFF4CAF50)
                             ),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(16.dp),
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 4.dp,
+                                pressedElevation = 8.dp
+                            )
                         ) {
-                            Icon(Icons.Default.ShoppingCart, contentDescription = null)
-                            Spacer(Modifier.width(8.dp))
+                            Icon(
+                                Icons.Default.ShoppingCart,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(Modifier.width(12.dp))
                             Text(
-                                "Agregar $${String.format("%.2f", (dish?.price ?: 0.0) * quantity)}",
+                                "Agregar al carrito",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp
                             )
@@ -205,18 +276,38 @@ fun DishDetailScreen(
             } else if (dish != null) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 16.dp)
+                    contentPadding = PaddingValues(bottom = 0.dp)
                 ) {
-                    // Imagen principal
+                    // Imagen principal con mejor diseño
                     item {
-                        AsyncImage(
-                            model = dish!!.imageUrl,
-                            contentDescription = dish!!.name,
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(300.dp),
-                            contentScale = ContentScale.Crop
-                        )
+                                .height(320.dp)
+                        ) {
+                            AsyncImage(
+                                model = dish!!.imageUrl,
+                                contentDescription = dish!!.name,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+
+                            // Gradiente en la parte inferior de la imagen
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(100.dp)
+                                    .align(Alignment.BottomCenter)
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                Color(0xFF05060A)
+                                            )
+                                        )
+                                    )
+                            )
+                        }
                     }
 
                     // Info principal
@@ -224,49 +315,64 @@ fun DishDetailScreen(
                         Column(
                             modifier = Modifier.padding(20.dp)
                         ) {
-                            // Restaurante
-                            Text(
-                                text = dish!!.restaurantName,
-                                fontSize = 14.sp,
-                                color = Color(0xFF4CAF50),
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            // Restaurante con icono
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    tint = Color(0xFF4CAF50),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(Modifier.width(6.dp))
+                                Text(
+                                    text = dish!!.restaurantName,
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF4CAF50),
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
 
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(12.dp))
 
                             // Nombre del platillo
                             Text(
                                 text = dish!!.name,
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                lineHeight = 34.sp
-                            )
-
-                            Spacer(Modifier.height(8.dp))
-
-                            // Categoría
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = Color(0xFF1A1F2E)
-                            ) {
-                                Text(
-                                    text = dish!!.category,
-                                    fontSize = 12.sp,
-                                    color = Color(0xFFB7BDC9),
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                                )
-                            }
-
-                            Spacer(Modifier.height(16.dp))
-
-                            // Precio
-                            Text(
-                                text = "$${String.format("%.2f", dish!!.price)}",
                                 fontSize = 32.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(0xFF4CAF50)
+                                color = Color.White,
+                                lineHeight = 38.sp
                             )
+
+                            Spacer(Modifier.height(12.dp))
+
+                            // Categoría y precio
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = Color(0xFF1A1F2E)
+                                ) {
+                                    Text(
+                                        text = dish!!.category,
+                                        fontSize = 13.sp,
+                                        color = Color(0xFFB7BDC9),
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                                    )
+                                }
+
+                                Text(
+                                    text = "$${String.format("%.2f", dish!!.price)}",
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF4CAF50)
+                                )
+                            }
                         }
                     }
 
@@ -277,16 +383,16 @@ fun DishDetailScreen(
                         ) {
                             Text(
                                 text = "Descripción",
-                                fontSize = 18.sp,
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(12.dp))
                             Text(
                                 text = dish!!.description,
-                                fontSize = 14.sp,
+                                fontSize = 15.sp,
                                 color = Color(0xFFB7BDC9),
-                                lineHeight = 22.sp
+                                lineHeight = 24.sp
                             )
                         }
                     }
@@ -295,31 +401,31 @@ fun DishDetailScreen(
                     if (dish!!.dietaryTags.isNotEmpty()) {
                         item {
                             Column(
-                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)
                             ) {
                                 Text(
                                     text = "Características",
-                                    fontSize = 18.sp,
+                                    fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
-                                Spacer(Modifier.height(12.dp))
+                                Spacer(Modifier.height(16.dp))
                                 LazyRow(
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
                                     items(dish!!.dietaryTags) { tag ->
                                         Surface(
-                                            shape = RoundedCornerShape(12.dp),
+                                            shape = RoundedCornerShape(14.dp),
                                             color = Color(0xFF1A2F2A),
                                             border = androidx.compose.foundation.BorderStroke(
-                                                1.dp,
+                                                1.5.dp,
                                                 Color(0xFF4CAF50)
                                             )
                                         ) {
                                             Row(
                                                 modifier = Modifier.padding(
-                                                    horizontal = 12.dp,
-                                                    vertical = 8.dp
+                                                    horizontal = 14.dp,
+                                                    vertical = 10.dp
                                                 ),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
@@ -327,14 +433,14 @@ fun DishDetailScreen(
                                                     Icons.Default.CheckCircle,
                                                     contentDescription = null,
                                                     tint = Color(0xFF4CAF50),
-                                                    modifier = Modifier.size(16.dp)
+                                                    modifier = Modifier.size(18.dp)
                                                 )
-                                                Spacer(Modifier.width(6.dp))
+                                                Spacer(Modifier.width(8.dp))
                                                 Text(
                                                     text = tag,
-                                                    fontSize = 13.sp,
+                                                    fontSize = 14.sp,
                                                     color = Color(0xFF4CAF50),
-                                                    fontWeight = FontWeight.Medium
+                                                    fontWeight = FontWeight.SemiBold
                                                 )
                                             }
                                         }
@@ -344,50 +450,64 @@ fun DishDetailScreen(
                         }
                     }
 
-                    // Ingredientes
+                    // Ingredientes con mejor diseño
                     item {
                         Column(
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp)
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)
                         ) {
-                            Text(
-                                text = "Ingredientes (${dish!!.ingredients.size})",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(Modifier.height(12.dp))
-                            dish!!.ingredients.chunked(2).forEach { rowItems ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.AccountBox,
+                                    contentDescription = null,
+                                    tint = Color(0xFF4CAF50),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    text = "Ingredientes",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = " (${dish!!.ingredients.size})",
+                                    fontSize = 16.sp,
+                                    color = Color(0xFF4CAF50)
+                                )
+                            }
+
+                            Spacer(Modifier.height(16.dp))
+
+                            dish!!.ingredients.forEach { ingredient ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 4.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        .padding(vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    rowItems.forEach { ingredient ->
-                                        Row(
-                                            modifier = Modifier.weight(1f),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                Icons.Default.Info,
-                                                contentDescription = null,
-                                                tint = Color(0xFF4CAF50),
-                                                modifier = Modifier.size(8.dp)
-                                            )
-                                            Spacer(Modifier.width(8.dp))
-                                            Text(
-                                                text = ingredient,
-                                                fontSize = 14.sp,
-                                                color = Color(0xFFB7BDC9)
-                                            )
-                                        }
-                                    }
-                                    if (rowItems.size == 1) {
-                                        Spacer(Modifier.weight(1f))
-                                    }
+                                    Surface(
+                                        modifier = Modifier.size(8.dp),
+                                        shape = RoundedCornerShape(4.dp),
+                                        color = Color(0xFF4CAF50)
+                                    ) {}
+
+                                    Spacer(Modifier.width(12.dp))
+
+                                    Text(
+                                        text = ingredient,
+                                        fontSize = 15.sp,
+                                        color = Color(0xFFB7BDC9)
+                                    )
                                 }
                             }
                         }
+                    }
+
+                    // Espaciado final para el bottom bar
+                    item {
+                        Spacer(Modifier.height(20.dp))
                     }
                 }
             } else {
@@ -395,30 +515,62 @@ fun DishDetailScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        "Platillo no encontrado",
-                        fontSize = 18.sp,
-                        color = Color.White
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = Color(0xFFE53935),
+                            modifier = Modifier.size(64.dp)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            "Platillo no encontrado",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
             }
 
-            // Snackbar
+            // Snackbar personalizado
             if (showAddedSnackbar) {
                 LaunchedEffect(Unit) {
-                    kotlinx.coroutines.delay(2000)
+                    kotlinx.coroutines.delay(2500)
                     showAddedSnackbar = false
                 }
-                Snackbar(
+
+                Surface(
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp),
-                    containerColor = Color(0xFF4CAF50)
+                        .align(Alignment.TopCenter)
+                        .padding(top = 80.dp)
+                        .padding(horizontal = 20.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = Color(0xFF4CAF50),
+                    shadowElevation = 8.dp
                 ) {
-                    Text("✓ Agregado al carrito", color = Color.White)
+                    Row(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Text(
+                            "Agregado al carrito",
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                    }
                 }
             }
         }
     }
 }
-

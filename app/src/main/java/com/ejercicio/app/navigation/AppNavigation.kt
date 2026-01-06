@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.ejercicio.app.viewModel.CartViewModel
 import com.ejercicio.app.viewModel.DishViewModel
 import com.ejercicio.app.viewModel.LoginViewModel
+import com.ejercicio.app.viewModel.OrderViewModel
 import com.ejercicio.app.viewModel.RestaurantAuthViewModel
 import com.ejercicio.app.views.BlankView
 import com.ejercicio.app.views.login.LoginScreen
@@ -19,7 +20,10 @@ import com.ejercicio.app.views.restaurant.RestaurantDashboardScreen
 import com.ejercicio.app.views.restaurant.RestaurantLoginScreen
 import com.ejercicio.app.views.restaurant.RestaurantSignUpScreen
 import com.ejercicio.app.views.user.CartScreen
+import com.ejercicio.app.views.user.CheckoutScreen
 import com.ejercicio.app.views.user.DishDetailScreen
+import com.ejercicio.app.views.user.OrderDetailScreen
+import com.ejercicio.app.views.user.OrderHistoryScreen
 import com.ejercicio.app.views.user.UserHomeScreen
 
 @Composable
@@ -28,7 +32,8 @@ fun AppNavigation(
     loginVM: LoginViewModel,
     restaurantVM: RestaurantAuthViewModel,
     dishVM: DishViewModel,
-    cartVM: CartViewModel
+    cartVM: CartViewModel,
+    orderVM: OrderViewModel
 ) {
     NavHost(
         navController = navController,
@@ -75,14 +80,18 @@ fun AppNavigation(
         }
 
         composable(route = AppScreen.Checkout.route) {
-            // TODO: Crear CheckoutScreen
-            // Por ahora muestra mensaje temporal
-            BlankView(navController)
+            CheckoutScreen(
+                navController = navController,
+                cartVM = cartVM,
+                orderVM = orderVM
+            )
         }
 
         composable(route = AppScreen.OrderHistory.route) {
-            // TODO: Crear OrderHistoryScreen
-            BlankView(navController)
+            OrderHistoryScreen(
+                navController = navController,
+                orderVM = orderVM
+            )
         }
 
         composable(
@@ -91,8 +100,12 @@ fun AppNavigation(
                 navArgument("orderId") { type = NavType.StringType }
             )
         ) {
-            // TODO: Crear OrderDetailScreen
-            BlankView(navController)
+            val orderId = it.arguments?.getString("orderId") ?: ""
+            OrderDetailScreen(
+                navController = navController,
+                orderId = orderId,
+                orderVM = orderVM
+            )
         }
 
         // ==================== RUTAS DE RESTAURANTE ====================

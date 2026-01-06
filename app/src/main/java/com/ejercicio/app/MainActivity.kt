@@ -16,6 +16,7 @@ import com.ejercicio.app.ui.theme.NutrideliUPIICSATheme
 import com.ejercicio.app.viewModel.CartViewModel
 import com.ejercicio.app.viewModel.DishViewModel
 import com.ejercicio.app.viewModel.LoginViewModel
+import com.ejercicio.app.viewModel.OrderViewModel
 import com.ejercicio.app.viewModel.RestaurantAuthViewModel
 
 class MainActivity : ComponentActivity() {
@@ -29,9 +30,7 @@ class MainActivity : ComponentActivity() {
         val restaurantAuthViewModel: RestaurantAuthViewModel by viewModels()
         val dishVM: DishViewModel by viewModels()
         val cartVM: CartViewModel by viewModels()
-
-        // TODO: Agregar OrderViewModel cuando lo crees
-        // val orderVM: OrderViewModel by viewModels()
+        val orderVM: OrderViewModel by viewModels()
 
         enableEdgeToEdge()
 
@@ -47,7 +46,8 @@ class MainActivity : ComponentActivity() {
                         loginVM = loginVM,
                         restaurantVM = restaurantAuthViewModel,
                         dishVM = dishVM,
-                        cartVM = cartVM
+                        cartVM = cartVM,
+                        orderVM = orderVM
                     )
                 }
             }

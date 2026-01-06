@@ -114,7 +114,7 @@ fun UserHomeScreen(
                             }
                         ) {
                             Icon(
-                                Icons.Default.MoreVert,
+                                Icons.Default.ArrowDropDown,
                                 contentDescription = "Filtros",
                                 tint = Color(0xFF4CAF50)
                             )
@@ -125,7 +125,7 @@ fun UserHomeScreen(
                     Box {
                         IconButton(onClick = { showMenuDropdown = true }) {
                             Icon(
-                                Icons.Default.Menu,
+                                Icons.Default.MoreVert,
                                 contentDescription = "Menú",
                                 tint = Color.White
                             )
@@ -170,7 +170,7 @@ fun UserHomeScreen(
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
                                         Icon(
-                                            Icons.Default.ShoppingCart,
+                                            Icons.Default.KeyboardArrowUp,
                                             contentDescription = null,
                                             tint = Color(0xFF4CAF50)
                                         )
@@ -183,7 +183,7 @@ fun UserHomeScreen(
                                 }
                             )
 
-                            // Favoritos (opcional)
+                            // Favoritos
                             DropdownMenuItem(
                                 text = {
                                     Row(
@@ -368,7 +368,7 @@ fun UserHomeScreen(
                             modifier = Modifier.padding(32.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Warning,
+                                imageVector = Icons.Default.AccountBox,
                                 contentDescription = null,
                                 tint = Color(0xFF4CAF50),
                                 modifier = Modifier.size(80.dp)
@@ -404,7 +404,7 @@ fun UserHomeScreen(
                         contentPadding = PaddingValues(vertical = 16.dp)
                     ) {
                         items(filteredDishes) { dish ->
-                            DishMarketplaceCard(
+                            ImprovedDishCard(
                                 dish = dish,
                                 onClick = {
                                     navController.navigate(AppScreen.DishDetail.createRoute(dish.dishId))
@@ -469,14 +469,13 @@ fun UserHomeScreen(
 }
 
 @Composable
-private fun DishMarketplaceCard(
+private fun ImprovedDishCard(
     dish: DishModel,
     onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(140.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -484,97 +483,171 @@ private fun DishMarketplaceCard(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
             // Imagen
-            AsyncImage(
-                model = dish.imageUrl,
-                contentDescription = dish.name,
+            Box(
                 modifier = Modifier
-                    .size(116.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF1A1F2E)),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(Modifier.width(12.dp))
-
-            // Info
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween
+                    .fillMaxWidth()
+                    .height(180.dp)
             ) {
-                Column {
-                    Text(
-                        text = dish.name,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = dish.restaurantName,
-                        fontSize = 12.sp,
-                        color = Color(0xFF4CAF50),
-                        modifier = Modifier.padding(top = 2.dp)
-                    )
+                AsyncImage(
+                    model = dish.imageUrl,
+                    contentDescription = dish.name,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                    contentScale = ContentScale.Crop
+                )
+
+                // Badge de categoría
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color(0xFF1A1F2E).copy(alpha = 0.9f)
+                ) {
                     Text(
                         text = dish.category,
                         fontSize = 11.sp,
-                        color = Color(0xFF8B92A1),
-                        modifier = Modifier.padding(top = 2.dp)
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                    )
+                }
+            }
+
+            // Info del platillo
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Nombre del platillo
+                Text(
+                    text = dish.name,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(Modifier.height(4.dp))
+
+                // Restaurante con mejor contraste
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = Color(0xFF4CAF50),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = dish.restaurantName,
+                        fontSize = 14.sp,
+                        color = Color(0xFF4CAF50),
+                        fontWeight = FontWeight.Medium
                     )
                 }
 
-                Column {
-                    // Tags
-                    if (dish.dietaryTags.isNotEmpty()) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        ) {
-                            dish.dietaryTags.take(2).forEach { tag ->
-                                Surface(
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = Color(0xFF1A2F2A)
+                // Tags dietéticos mejorados
+                if (dish.dietaryTags.isNotEmpty()) {
+                    Spacer(Modifier.height(12.dp))
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        items(dish.dietaryTags.take(3)) { tag ->
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = Color(0xFF1A2F2A),
+                                border = androidx.compose.foundation.BorderStroke(
+                                    1.dp,
+                                    Color(0xFF4CAF50).copy(alpha = 0.3f)
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
+                                    Icon(
+                                        Icons.Default.CheckCircle,
+                                        contentDescription = null,
+                                        tint = Color(0xFF4CAF50),
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Spacer(Modifier.width(4.dp))
                                     Text(
                                         text = tag,
-                                        fontSize = 9.sp,
+                                        fontSize = 11.sp,
                                         color = Color(0xFF4CAF50),
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
                             }
-                            if (dish.dietaryTags.size > 2) {
+                        }
+                        if (dish.dietaryTags.size > 3) {
+                            item {
                                 Surface(
-                                    shape = RoundedCornerShape(6.dp),
+                                    shape = RoundedCornerShape(12.dp),
                                     color = Color(0xFF1A2F2A)
                                 ) {
                                     Text(
-                                        text = "+${dish.dietaryTags.size - 2}",
-                                        fontSize = 9.sp,
+                                        text = "+${dish.dietaryTags.size - 3}",
+                                        fontSize = 11.sp,
                                         color = Color(0xFF4CAF50),
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                                     )
                                 }
                             }
                         }
                     }
+                }
 
-                    // Precio
+                Spacer(Modifier.height(12.dp))
+
+                // Precio destacado
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
                         text = "$${String.format("%.2f", dish.price)}",
-                        fontSize = 20.sp,
+                        fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF4CAF50)
                     )
+
+                    // Botón de ver más
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color(0xFF4CAF50)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                "Ver más",
+                                color = Color.White,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Icon(
+                                Icons.Default.ArrowForward,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
