@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ejercicio.proyectofinal"
+    namespace = "com.ejercicio.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.ejercicio.proyectofinal"
+        applicationId = "com.ejercicio.app"
         minSdk = 31
         targetSdk = 36
         versionCode = 1
@@ -57,16 +57,16 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
     implementation("androidx.compose.material:material-icons-core:1.7.8")
     implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
     implementation("androidx.navigation:navigation-compose:2.9.6")
     implementation("com.google.firebase:firebase-auth")
-    implementation("com.facebook.android:facebook-login:latest.release")
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
+    implementation("com.google.android.gms:play-services-auth:21.4.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
-    implementation("androidx.credentials:credentials:1.3.0")
-    implementation("androidx.browser:browser:1.8.0")
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.browser:browser:1.9.0")
 }

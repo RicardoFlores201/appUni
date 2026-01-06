@@ -8,12 +8,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:600824037682:android:fcd49aa18f31cb8106d72b",
+        "mobilesdk_app_id": "1:600824037682:android:3363699eeea5761006d72b",
         "android_client_info": {
-          "package_name": "com.ejercicio.proyectofinal"
+          "package_name": "com.ejercicio.app"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "600824037682-khb2c2aui8bltvibe68ifpe2u51kmtus.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ejercicio.app",
+            "certificate_hash": "ceafa6dbc3d61536418a52a384fd49d70c0fdddc"
+          }
+        },
         {
           "client_id": "600824037682-cp42fe5qggkchdbtjr5lm58s7beuk2mf.apps.googleusercontent.com",
           "client_type": 3
