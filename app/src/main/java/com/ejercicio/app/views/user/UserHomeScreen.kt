@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -85,12 +86,17 @@ fun UserHomeScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text(
-                            "🥗 Nutrideli",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                "🥗 Nutrideli",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
                         Text(
                             "${filteredDishes.size} platillos disponibles",
                             fontSize = 12.sp,
@@ -99,22 +105,26 @@ fun UserHomeScreen(
                     }
                 },
                 actions = {
-                    // Botón de filtros
+                    // Botón de filtros con ícono mejorado
                     IconButton(onClick = { showFilterDialog = true }) {
                         BadgedBox(
                             badge = {
                                 if (selectedCategory != null || selectedTags.isNotEmpty()) {
-                                    Badge(containerColor = Color(0xFF4CAF50)) {
+                                    Badge(
+                                        containerColor = Color(0xFF4CAF50),
+                                        contentColor = Color.White
+                                    ) {
                                         Text(
                                             "${(if (selectedCategory != null) 1 else 0) + selectedTags.size}",
-                                            fontSize = 10.sp
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold
                                         )
                                     }
                                 }
                             }
                         ) {
                             Icon(
-                                Icons.Default.ArrowDropDown,
+                                Icons.Filled.Tune, // ← ÍCONO MEJORADO
                                 contentDescription = "Filtros",
                                 tint = Color(0xFF4CAF50)
                             )
@@ -125,7 +135,7 @@ fun UserHomeScreen(
                     Box {
                         IconButton(onClick = { showMenuDropdown = true }) {
                             Icon(
-                                Icons.Default.MoreVert,
+                                Icons.Filled.MoreVert,
                                 contentDescription = "Menú",
                                 tint = Color.White
                             )
@@ -136,7 +146,7 @@ fun UserHomeScreen(
                             onDismissRequest = { showMenuDropdown = false },
                             modifier = Modifier
                                 .background(Color(0xFF0F1219))
-                                .width(200.dp)
+                                .width(220.dp)
                         ) {
                             // Perfil del usuario
                             val currentUser = FirebaseAuth.getInstance().currentUser
@@ -146,23 +156,46 @@ fun UserHomeScreen(
                                         .fillMaxWidth()
                                         .padding(16.dp)
                                 ) {
-                                    Text(
-                                        text = currentUser.displayName ?: "Usuario",
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-                                    Text(
-                                        text = currentUser.email ?: "",
-                                        fontSize = 12.sp,
-                                        color = Color(0xFFB7BDC9),
-                                        modifier = Modifier.padding(top = 2.dp)
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Surface(
+                                            modifier = Modifier.size(40.dp),
+                                            shape = RoundedCornerShape(20.dp),
+                                            color = Color(0xFF4CAF50).copy(alpha = 0.2f)
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Person,
+                                                contentDescription = null,
+                                                tint = Color(0xFF4CAF50),
+                                                modifier = Modifier.padding(8.dp)
+                                            )
+                                        }
+                                        Column {
+                                            Text(
+                                                text = currentUser.displayName ?: "Usuario",
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Text(
+                                                text = currentUser.email ?: "",
+                                                fontSize = 11.sp,
+                                                color = Color(0xFFB7BDC9),
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                                modifier = Modifier.padding(top = 2.dp)
+                                            )
+                                        }
+                                    }
                                 }
                                 Divider(color = Color(0xFF232838))
                             }
 
-                            // Mis pedidos
+                            // Mis pedidos con ícono mejorado
                             DropdownMenuItem(
                                 text = {
                                     Row(
@@ -170,7 +203,7 @@ fun UserHomeScreen(
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
                                         Icon(
-                                            Icons.Default.KeyboardArrowUp,
+                                            Icons.Filled.Receipt, // ← ÍCONO MEJORADO
                                             contentDescription = null,
                                             tint = Color(0xFF4CAF50)
                                         )
@@ -183,7 +216,7 @@ fun UserHomeScreen(
                                 }
                             )
 
-                            // Favoritos
+                            // Favoritos con ícono mejorado
                             DropdownMenuItem(
                                 text = {
                                     Row(
@@ -191,7 +224,7 @@ fun UserHomeScreen(
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
                                         Icon(
-                                            Icons.Default.Favorite,
+                                            Icons.Filled.FavoriteBorder, // ← ÍCONO MEJORADO
                                             contentDescription = null,
                                             tint = Color(0xFFE91E63)
                                         )
@@ -204,7 +237,7 @@ fun UserHomeScreen(
                                 }
                             )
 
-                            // Direcciones
+                            // Direcciones con ícono mejorado
                             DropdownMenuItem(
                                 text = {
                                     Row(
@@ -212,7 +245,7 @@ fun UserHomeScreen(
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
                                         Icon(
-                                            Icons.Default.LocationOn,
+                                            Icons.Filled.Home, // ← ÍCONO MEJORADO
                                             contentDescription = null,
                                             tint = Color(0xFF2196F3)
                                         )
@@ -227,7 +260,7 @@ fun UserHomeScreen(
 
                             Divider(color = Color(0xFF232838))
 
-                            // Configuración
+                            // Configuración con ícono mejorado
                             DropdownMenuItem(
                                 text = {
                                     Row(
@@ -235,7 +268,7 @@ fun UserHomeScreen(
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
                                         Icon(
-                                            Icons.Default.Settings,
+                                            Icons.Outlined.Settings, // ← ÍCONO MEJORADO
                                             contentDescription = null,
                                             tint = Color(0xFF9E9E9E)
                                         )
@@ -248,7 +281,7 @@ fun UserHomeScreen(
                                 }
                             )
 
-                            // Ayuda
+                            // Ayuda con ícono mejorado
                             DropdownMenuItem(
                                 text = {
                                     Row(
@@ -256,7 +289,7 @@ fun UserHomeScreen(
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
                                         Icon(
-                                            Icons.Default.Call,
+                                            Icons.Outlined.Help, // ← ÍCONO MEJORADO
                                             contentDescription = null,
                                             tint = Color(0xFF9E9E9E)
                                         )
@@ -271,7 +304,7 @@ fun UserHomeScreen(
 
                             Divider(color = Color(0xFF232838))
 
-                            // Cerrar sesión
+                            // Cerrar sesión con ícono mejorado
                             DropdownMenuItem(
                                 text = {
                                     Row(
@@ -279,7 +312,7 @@ fun UserHomeScreen(
                                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
                                         Icon(
-                                            Icons.Default.ExitToApp,
+                                            Icons.Outlined.Logout, // ← ÍCONO MEJORADO
                                             contentDescription = null,
                                             tint = Color(0xFFE53935)
                                         )
@@ -323,11 +356,20 @@ fun UserHomeScreen(
                                     selected = true,
                                     onClick = { selectedCategory = null },
                                     label = { Text(selectedCategory!!, fontSize = 12.sp) },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Filled.Category, // ← ÍCONO MEJORADO
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    },
                                     trailingIcon = {
                                         Icon(Icons.Default.Close, null, modifier = Modifier.size(16.dp))
                                     },
                                     colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Color(0xFF4CAF50)
+                                        selectedContainerColor = Color(0xFF4CAF50),
+                                        selectedLabelColor = Color.White,
+                                        selectedLeadingIconColor = Color.White
                                     )
                                 )
                             }
@@ -337,11 +379,20 @@ fun UserHomeScreen(
                                 selected = true,
                                 onClick = { selectedTags = selectedTags - tag },
                                 label = { Text(tag, fontSize = 12.sp) },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Filled.CheckCircle, // ← ÍCONO MEJORADO
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                },
                                 trailingIcon = {
                                     Icon(Icons.Default.Close, null, modifier = Modifier.size(16.dp))
                                 },
                                 colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = Color(0xFF4CAF50)
+                                    selectedContainerColor = Color(0xFF4CAF50),
+                                    selectedLabelColor = Color.White,
+                                    selectedLeadingIconColor = Color.White
                                 )
                             )
                         }
@@ -354,7 +405,17 @@ fun UserHomeScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = Color(0xFF4CAF50))
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator(color = Color(0xFF4CAF50))
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                "Cargando platillos...",
+                                fontSize = 14.sp,
+                                color = Color(0xFFB7BDC9)
+                            )
+                        }
                     }
                 }
                 // Empty state
@@ -368,7 +429,7 @@ fun UserHomeScreen(
                             modifier = Modifier.padding(32.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.AccountBox,
+                                imageVector = Icons.Filled.SearchOff, // ← ÍCONO MEJORADO
                                 contentDescription = null,
                                 tint = Color(0xFF4CAF50),
                                 modifier = Modifier.size(80.dp)
@@ -440,6 +501,14 @@ fun UserHomeScreen(
             if (showLogoutDialog) {
                 AlertDialog(
                     onDismissRequest = { showLogoutDialog = false },
+                    icon = {
+                        Icon(
+                            Icons.Outlined.Logout, // ← ÍCONO MEJORADO
+                            contentDescription = null,
+                            tint = Color(0xFFE53935),
+                            modifier = Modifier.size(48.dp)
+                        )
+                    },
                     title = { Text("Cerrar sesión", fontWeight = FontWeight.Bold) },
                     text = { Text("¿Estás seguro de que deseas cerrar sesión?") },
                     confirmButton = {
@@ -501,7 +570,7 @@ private fun ImprovedDishCard(
                     contentScale = ContentScale.Crop
                 )
 
-                // Badge de categoría
+                // Badge de categoría con ícono
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -509,12 +578,24 @@ private fun ImprovedDishCard(
                     shape = RoundedCornerShape(8.dp),
                     color = Color(0xFF1A1F2E).copy(alpha = 0.9f)
                 ) {
-                    Text(
-                        text = dish.category,
-                        fontSize = 11.sp,
-                        color = Color.White,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            getCategoryIcon(dish.category), // ← ÍCONO DINÁMICO
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = dish.category,
+                            fontSize = 11.sp,
+                            color = Color.White,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
 
@@ -536,12 +617,12 @@ private fun ImprovedDishCard(
 
                 Spacer(Modifier.height(4.dp))
 
-                // Restaurante con mejor contraste
+                // Restaurante con ícono mejorado
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        Icons.Default.CheckCircle,
+                        Icons.Filled.Storefront, // ← ÍCONO MEJORADO
                         contentDescription = null,
                         tint = Color(0xFF4CAF50),
                         modifier = Modifier.size(16.dp)
@@ -575,7 +656,7 @@ private fun ImprovedDishCard(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
-                                        Icons.Default.CheckCircle,
+                                        Icons.Filled.Verified, // ← ÍCONO MEJORADO
                                         contentDescription = null,
                                         tint = Color(0xFF4CAF50),
                                         modifier = Modifier.size(12.dp)
@@ -624,7 +705,7 @@ private fun ImprovedDishCard(
                         color = Color(0xFF4CAF50)
                     )
 
-                    // Botón de ver más
+                    // Botón de ver más con ícono mejorado
                     Surface(
                         shape = RoundedCornerShape(20.dp),
                         color = Color(0xFF4CAF50)
@@ -641,10 +722,10 @@ private fun ImprovedDishCard(
                             )
                             Spacer(Modifier.width(4.dp))
                             Icon(
-                                Icons.Default.ArrowForward,
+                                Icons.Filled.ArrowForwardIos, // ← ÍCONO MEJORADO
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(14.dp)
                             )
                         }
                     }
@@ -665,6 +746,14 @@ private fun FilterDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                Icons.Filled.Tune, // ← ÍCONO MEJORADO
+                contentDescription = null,
+                tint = Color(0xFF4CAF50),
+                modifier = Modifier.size(32.dp)
+            )
+        },
         title = { Text("Filtros", fontWeight = FontWeight.Bold) },
         text = {
             LazyColumn(
@@ -672,12 +761,23 @@ private fun FilterDialog(
             ) {
                 // Categorías
                 item {
-                    Text(
-                        "Categoría",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.Category,
+                            contentDescription = null,
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            "Categoría",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
                 }
                 items(DishCategories.categories) { category ->
                     Row(
@@ -695,18 +795,42 @@ private fun FilterDialog(
                                 onCategorySelect(if (selectedCategory == category) null else category)
                             }
                         )
-                        Text(category, modifier = Modifier.padding(start = 8.dp))
+                        Icon(
+                            getCategoryIcon(category),
+                            contentDescription = null,
+                            tint = if (selectedCategory == category) Color(0xFF4CAF50) else Color(0xFF8B92A1),
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .size(18.dp)
+                        )
+                        Text(
+                            category,
+                            modifier = Modifier.padding(start = 12.dp),
+                            color = if (selectedCategory == category) Color.White else Color(0xFFB7BDC9)
+                        )
                     }
                 }
 
                 // Tags dietéticos
                 item {
-                    Text(
-                        "Tags dietéticos",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(vertical = 12.dp, horizontal = 0.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.Verified,
+                            contentDescription = null,
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            "Tags dietéticos",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
                 }
                 items(DietaryTags.tags) { tag ->
                     Row(
@@ -720,14 +844,18 @@ private fun FilterDialog(
                             checked = selectedTags.contains(tag),
                             onCheckedChange = { onTagToggle(tag) }
                         )
-                        Text(tag, modifier = Modifier.padding(start = 8.dp))
+                        Text(
+                            tag,
+                            modifier = Modifier.padding(start = 8.dp),
+                            color = if (selectedTags.contains(tag)) Color.White else Color(0xFFB7BDC9)
+                        )
                     }
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Aplicar")
+                Text("Aplicar", color = Color(0xFF4CAF50))
             }
         },
         dismissButton = {
@@ -742,4 +870,17 @@ private fun FilterDialog(
         titleContentColor = Color.White,
         textContentColor = Color.White
     )
+}
+
+// Función auxiliar para obtener ícono según categoría
+private fun getCategoryIcon(category: String): androidx.compose.ui.graphics.vector.ImageVector {
+    return when (category.lowercase()) {
+        "desayuno" -> Icons.Filled.BrunchDining
+        "comida", "almuerzo" -> Icons.Filled.LunchDining
+        "cena" -> Icons.Filled.DinnerDining
+        "snack", "botana" -> Icons.Filled.Fastfood
+        "bebida" -> Icons.Filled.LocalCafe
+        "postre" -> Icons.Filled.Cake
+        else -> Icons.Filled.Restaurant
+    }
 }

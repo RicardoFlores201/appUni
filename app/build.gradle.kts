@@ -70,4 +70,5 @@ dependencies {
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     implementation("androidx.credentials:credentials:1.5.0")
     implementation("androidx.browser:browser:1.9.0")
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
 }
