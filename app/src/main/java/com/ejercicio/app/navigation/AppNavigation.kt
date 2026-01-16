@@ -24,6 +24,7 @@ import com.ejercicio.app.views.user.CheckoutScreen
 import com.ejercicio.app.views.user.DishDetailScreen
 import com.ejercicio.app.views.user.OrderDetailScreen
 import com.ejercicio.app.views.user.OrderHistoryScreen
+import com.ejercicio.app.views.user.UserAddressesScreen
 import com.ejercicio.app.views.user.UserHomeScreen
 
 @Composable
@@ -106,6 +107,11 @@ fun AppNavigation(
                 orderId = orderId,
                 orderVM = orderVM
             )
+        }
+
+        // Direcciones del usuario
+        composable(route = "user_addresses") {
+            UserAddressesScreen(navController = navController)
         }
 
         // ==================== RUTAS DE RESTAURANTE ====================

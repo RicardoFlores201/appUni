@@ -4,12 +4,9 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,11 +14,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -34,7 +31,6 @@ import coil.compose.AsyncImage
 import com.ejercicio.app.components.Alert
 import com.ejercicio.app.utils.DietaryTags
 import com.ejercicio.app.utils.DishCategories
-import com.ejercicio.app.utils.HealthyIngredients
 import com.ejercicio.app.viewModel.DishViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,77 +47,72 @@ fun AddDishScreen(
         )
     )
 
-    var showCategoryMenu by remember { mutableStateOf(false) }
+    var showCategoryDialog by remember { mutableStateOf(false) }
     var showIngredientsDialog by remember { mutableStateOf(false) }
     var showTagsDialog by remember { mutableStateOf(false) }
 
-    // Image picker
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         dishVM.onImageUriChange(uri)
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(bg)
-    ) {
+    Scaffold(
+        containerColor = Color.Transparent,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Agregar platillo",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Atrás",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
+            )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .windowInsetsPadding(WindowInsets.systemBars)
+                .background(bg)
+                .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
-                .padding(top = 16.dp, bottom = 26.dp)
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 20.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(
-                    onClick = { navController.popBackStack() }
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Atrás",
-                        tint = Color.White
-                    )
-                }
-                Text(
-                    text = "Agregar platillo",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-
-            // Selector de imagen
+            // Imagen del platillo
             Text(
-                text = "Imagen del platillo *",
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFFB7BDC9),
-                modifier = Modifier.padding(bottom = 8.dp)
+                "Imagen del platillo *",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp, top = 16.dp)
             )
 
-            Box(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF0F1219))
-                    .border(
-                        width = 2.dp,
-                        color = if (dishVM.imageUri != null) Color(0xFF218A85) else Color(0xFF232838),
-                        shape = RoundedCornerShape(16.dp)
-                    )
                     .clickable { imagePickerLauncher.launch("image/*") },
-                contentAlignment = Alignment.Center
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFF1A1F2E),
+                border = androidx.compose.foundation.BorderStroke(
+                    2.dp,
+                    if (dishVM.imageUri != null) Color(0xFF4CAF50) else Color(0xFF232838)
+                )
             ) {
                 if (dishVM.imageUri != null) {
                     AsyncImage(
@@ -132,19 +123,21 @@ fun AddDishScreen(
                     )
                 } else {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Add,
+                            Icons.Outlined.AddPhotoAlternate,
                             contentDescription = null,
-                            tint = Color(0xFF218A85),
+                            tint = Color(0xFF4CAF50),
                             modifier = Modifier.size(48.dp)
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
                             "Toca para seleccionar imagen",
                             fontSize = 14.sp,
-                            color = Color(0xFFB7BDC9)
+                            color = Color(0xFF8B92A1)
                         )
                     }
                 }
@@ -152,222 +145,314 @@ fun AddDishScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // Nombre
-            FieldLabel("Nombre del platillo *")
-            DishTextField(
-                value = dishVM.name,
-                onValueChange = dishVM::onNameChange,
-                placeholder = "Ej: Hamburguesa vegana"
+            // Nombre del platillo
+            Text(
+                "Nombre del platillo *",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            Spacer(Modifier.height(16.dp))
+            OutlinedTextField(
+                value = dishVM.name,
+                onValueChange = { dishVM.onNameChange(it) },
+                placeholder = { Text("Ej: Hamburguesa vegana", color = Color(0xFF666666)) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color(0xFF232838),
+                    focusedBorderColor = Color(0xFF4CAF50),
+                    unfocusedContainerColor = Color(0xFF1A1F2E),
+                    focusedContainerColor = Color(0xFF1A1F2E),
+                    cursorColor = Color(0xFF4CAF50),
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White),
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
+            )
+
+            Spacer(Modifier.height(20.dp))
 
             // Descripción
-            FieldLabel("Descripción *")
-            DishTextField(
-                value = dishVM.description,
-                onValueChange = dishVM::onDescriptionChange,
-                placeholder = "Describe el platillo...",
-                maxLines = 3
+            Text(
+                "Descripción *",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            Spacer(Modifier.height(16.dp))
+            OutlinedTextField(
+                value = dishVM.description,
+                onValueChange = { dishVM.onDescriptionChange(it) },
+                placeholder = { Text("Describe el platillo...", color = Color(0xFF666666)) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color(0xFF232838),
+                    focusedBorderColor = Color(0xFF4CAF50),
+                    unfocusedContainerColor = Color(0xFF1A1F2E),
+                    focusedContainerColor = Color(0xFF1A1F2E),
+                    cursorColor = Color(0xFF4CAF50),
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp),
+                minLines = 3,
+                maxLines = 5
+            )
+
+            Spacer(Modifier.height(20.dp))
 
             // Categoría
-            FieldLabel("Categoría *")
-            ExposedDropdownMenuBox(
-                expanded = showCategoryMenu,
-                onExpandedChange = { showCategoryMenu = !showCategoryMenu }
+            Text(
+                "Categoría *",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Surface(
+                onClick = { showCategoryDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFF1A1F2E),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (dishVM.category.isNotBlank()) Color(0xFF4CAF50) else Color(0xFF232838)
+                )
             ) {
-                OutlinedTextField(
-                    value = dishVM.category,
-                    onValueChange = {},
-                    readOnly = true,
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor(),
-                    placeholder = { Text("Selecciona categoría", color = Color(0xFF6B7280)) },
-                    trailingIcon = {
-                        Icon(Icons.Default.ArrowDropDown, null, tint = Color(0xFF218A85))
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color(0xFF232838),
-                        focusedBorderColor = Color(0xFF218A85),
-                        unfocusedContainerColor = Color(0xFF0F1219),
-                        focusedContainerColor = Color(0xFF0F1219),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(14.dp)
-                )
-                ExposedDropdownMenu(
-                    expanded = showCategoryMenu,
-                    onDismissRequest = { showCategoryMenu = false }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    DishCategories.categories.forEach { category ->
-                        DropdownMenuItem(
-                            text = { Text(category) },
-                            onClick = {
-                                dishVM.onCategoryChange(category)
-                                showCategoryMenu = false
-                            }
-                        )
-                    }
+                    Text(
+                        text = if (dishVM.category.isBlank()) "Selecciona categoría" else dishVM.category,
+                        fontSize = 16.sp,
+                        color = if (dishVM.category.isBlank()) Color(0xFF666666) else Color.White
+                    )
+                    Icon(
+                        Icons.Filled.ArrowDropDown,
+                        contentDescription = null,
+                        tint = Color(0xFF8B92A1)
+                    )
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
 
             // Precio
-            FieldLabel("Precio *")
-            DishTextField(
-                value = dishVM.price,
-                onValueChange = dishVM::onPriceChange,
-                placeholder = "0.00",
-                keyboardType = KeyboardType.Decimal,
-                leadingIcon = {
-                    Text("$", color = Color(0xFF218A85), fontSize = 18.sp)
-                }
+            Text(
+                "Precio *",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            Spacer(Modifier.height(16.dp))
+            OutlinedTextField(
+                value = dishVM.price,
+                onValueChange = { dishVM.onPriceChange(it) },
+                placeholder = { Text("0.00", color = Color(0xFF666666)) },
+                leadingIcon = {
+                    Text(
+                        "$",
+                        fontSize = 16.sp,
+                        color = Color(0xFF4CAF50),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color(0xFF232838),
+                    focusedBorderColor = Color(0xFF4CAF50),
+                    unfocusedContainerColor = Color(0xFF1A1F2E),
+                    focusedContainerColor = Color(0xFF1A1F2E),
+                    cursorColor = Color(0xFF4CAF50),
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                singleLine = true
+            )
+
+            Spacer(Modifier.height(20.dp))
 
             // Ingredientes
-            FieldLabel("Ingredientes * (${dishVM.selectedIngredients.size} seleccionados)")
-            Button(
-                onClick = { showIngredientsDialog = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF0F1219)
-                ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF232838))
-            ) {
-                Icon(Icons.Default.Add, null, tint = Color(0xFF218A85))
-                Spacer(Modifier.width(8.dp))
-                Text("Seleccionar ingredientes", color = Color.White)
-            }
+            Text(
+                "Ingredientes * (${dishVM.selectedIngredients.size} seleccionados)",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
 
-            if (dishVM.selectedIngredients.isNotEmpty()) {
-                Spacer(Modifier.height(8.dp))
-                LazyRow(
+            Surface(
+                onClick = { showIngredientsDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFF1A1F2E),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (dishVM.selectedIngredients.isNotEmpty()) Color(0xFF4CAF50) else Color(0xFF232838)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(dishVM.selectedIngredients) { ingredient ->
-                        FilterChip(
-                            selected = true,
-                            onClick = { dishVM.toggleIngredient(ingredient) },
-                            label = { Text(ingredient, fontSize = 12.sp) },
-                            trailingIcon = {
-                                Icon(Icons.Default.Close, null, modifier = Modifier.size(16.dp))
-                            }
-                        )
-                    }
+                    Icon(
+                        Icons.Outlined.Restaurant,
+                        contentDescription = null,
+                        tint = if (dishVM.selectedIngredients.isEmpty()) Color(0xFF8B92A1) else Color(0xFF4CAF50)
+                    )
+                    Text(
+                        text = if (dishVM.selectedIngredients.isEmpty())
+                            "Seleccionar ingredientes"
+                        else
+                            dishVM.selectedIngredients.take(3).joinToString(", ") +
+                                    if (dishVM.selectedIngredients.size > 3) "..." else "",
+                        fontSize = 16.sp,
+                        color = if (dishVM.selectedIngredients.isEmpty()) Color(0xFF666666) else Color.White
+                    )
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
 
             // Tags dietéticos
-            FieldLabel("Tags dietéticos (${dishVM.selectedDietaryTags.size} seleccionados)")
-            Button(
-                onClick = { showTagsDialog = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF0F1219)
-                ),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF232838))
-            ) {
-                Icon(Icons.Default.Add, null, tint = Color(0xFF218A85))
-                Spacer(Modifier.width(8.dp))
-                Text("Agregar tags", color = Color.White)
-            }
+            Text(
+                "Tags dietéticos (${dishVM.selectedDietaryTags.size} seleccionados)",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
 
-            if (dishVM.selectedDietaryTags.isNotEmpty()) {
-                Spacer(Modifier.height(8.dp))
-                LazyRow(
+            Surface(
+                onClick = { showTagsDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = Color(0xFF1A1F2E),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (dishVM.selectedDietaryTags.isNotEmpty()) Color(0xFF4CAF50) else Color(0xFF232838)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(dishVM.selectedDietaryTags) { tag ->
-                        FilterChip(
-                            selected = true,
-                            onClick = { dishVM.toggleDietaryTag(tag) },
-                            label = { Text(tag, fontSize = 12.sp) },
-                            trailingIcon = {
-                                Icon(Icons.Default.Close, null, modifier = Modifier.size(16.dp))
-                            }
+                    Icon(
+                        Icons.Outlined.LocalOffer,
+                        contentDescription = null,
+                        tint = if (dishVM.selectedDietaryTags.isEmpty()) Color(0xFF8B92A1) else Color(0xFF4CAF50)
+                    )
+                    Text(
+                        text = if (dishVM.selectedDietaryTags.isEmpty())
+                            "Seleccionar tags"
+                        else
+                            dishVM.selectedDietaryTags.take(3).joinToString(", ") +
+                                    if (dishVM.selectedDietaryTags.size > 3) "..." else "",
+                        fontSize = 16.sp,
+                        color = if (dishVM.selectedDietaryTags.isEmpty()) Color(0xFF666666) else Color.White
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(80.dp))
+        }
+
+        // Botón flotante en la parte inferior
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF0F1219))
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .padding(20.dp)
+            ) {
+                Button(
+                    onClick = {
+                        dishVM.createDish {
+                            navController.popBackStack()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF4CAF50)
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    enabled = dishVM.name.isNotBlank() &&
+                            dishVM.description.isNotBlank() &&
+                            dishVM.price.isNotBlank() &&
+                            dishVM.category.isNotBlank() &&
+                            dishVM.selectedIngredients.isNotEmpty() &&
+                            !dishVM.isLoading
+                ) {
+                    if (dishVM.isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Icon(
+                            Icons.Filled.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "Crear platillo",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
-            }
-
-            Spacer(Modifier.height(32.dp))
-
-            // Botón crear
-            Button(
-                onClick = {
-                    dishVM.createDish {
-                        navController.popBackStack()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(28.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF218A85),
-                    disabledContainerColor = Color(0xFF1A2840)
-                ),
-                enabled = !dishVM.isLoading
-            ) {
-                if (dishVM.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Color.White,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Crear platillo", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                }
-            }
-
-            // Progress de upload
-            if (dishVM.isLoading && dishVM.uploadProgress > 0) {
-                Spacer(Modifier.height(16.dp))
-                LinearProgressIndicator(
-                    progress = { dishVM.uploadProgress },
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Color(0xFF218A85),
-                )
-                Text(
-                    text = "Subiendo imagen... ${(dishVM.uploadProgress * 100).toInt()}%",
-                    fontSize = 12.sp,
-                    color = Color(0xFFB7BDC9),
-                    modifier = Modifier.padding(top = 4.dp)
-                )
             }
         }
 
-        // Dialog ingredientes
-        if (showIngredientsDialog) {
-            IngredientsDialog(
-                selectedIngredients = dishVM.selectedIngredients,
-                onToggle = dishVM::toggleIngredient,
-                onDismiss = { showIngredientsDialog = false }
+        // Diálogos
+        if (showCategoryDialog) {
+            CategoryDialog(
+                onDismiss = { showCategoryDialog = false },
+                onSelect = {
+                    dishVM.onCategoryChange(it)
+                    showCategoryDialog = false
+                }
             )
         }
 
-        // Dialog tags
+        if (showIngredientsDialog) {
+            IngredientsDialog(
+                selectedIngredients = dishVM.selectedIngredients.toSet(),
+                onDismiss = { showIngredientsDialog = false },
+                onToggle = { dishVM.toggleIngredient(it) }
+            )
+        }
+
         if (showTagsDialog) {
             TagsDialog(
-                selectedTags = dishVM.selectedDietaryTags,
-                onToggle = dishVM::toggleDietaryTag,
-                onDismiss = { showTagsDialog = false }
+                selectedTags = dishVM.selectedDietaryTags.toSet(),
+                onDismiss = { showTagsDialog = false },
+                onToggle = { dishVM.toggleDietaryTag(it) }
             )
         }
 
@@ -384,86 +469,52 @@ fun AddDishScreen(
 }
 
 @Composable
-private fun FieldLabel(text: String) {
-    Text(
-        text = text,
-        fontSize = 13.sp,
-        fontWeight = FontWeight.SemiBold,
-        color = Color(0xFFB7BDC9),
-        modifier = Modifier.padding(bottom = 8.dp)
-    )
-}
-
-@Composable
-private fun DishTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    maxLines: Int = 1,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    leadingIcon: (@Composable () -> Unit)? = null
+private fun CategoryDialog(
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 56.dp),
-        singleLine = maxLines == 1,
-        maxLines = maxLines,
-        placeholder = { Text(placeholder, color = Color(0xFF6B7280), fontSize = 14.sp) },
-        leadingIcon = leadingIcon,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        shape = RoundedCornerShape(14.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = Color(0xFF232838),
-            focusedBorderColor = Color(0xFF218A85),
-            unfocusedContainerColor = Color(0xFF0F1219),
-            focusedContainerColor = Color(0xFF0F1219),
-            cursorColor = Color(0xFF218A85),
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White
-        )
-    )
-}
-
-@Composable
-private fun IngredientsDialog(
-    selectedIngredients: List<String>,
-    onToggle: (String) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val grouped = HealthyIngredients.getGrouped()
-
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Seleccionar ingredientes") },
+        icon = {
+            Icon(
+                Icons.Outlined.Category,
+                contentDescription = null,
+                tint = Color(0xFF4CAF50),
+                modifier = Modifier.size(32.dp)
+            )
+        },
+        title = { Text("Seleccionar categoría", fontWeight = FontWeight.Bold) },
         text = {
             LazyColumn(
-                modifier = Modifier.height(400.dp)
+                modifier = Modifier.height(300.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                grouped.forEach { (category, ingredients) ->
-                    item {
-                        Text(
-                            text = category,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-                    items(ingredients) { ingredient ->
+                items(DishCategories.categories.size) { index ->
+                    val category = DishCategories.categories[index]
+                    Surface(
+                        onClick = { onSelect(category) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color(0xFF1A1F2E)
+                    ) {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onToggle(ingredient) }
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Checkbox(
-                                checked = selectedIngredients.contains(ingredient),
-                                onCheckedChange = { onToggle(ingredient) }
+                            Icon(
+                                getCategoryIcon(category),
+                                contentDescription = null,
+                                tint = Color(0xFF4CAF50),
+                                modifier = Modifier.size(24.dp)
                             )
-                            Text(ingredient, modifier = Modifier.padding(start = 8.dp))
+                            Text(
+                                category,
+                                fontSize = 16.sp,
+                                color = Color.White
+                            )
                         }
                     }
                 }
@@ -471,44 +522,150 @@ private fun IngredientsDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Listo")
+                Text("Cancelar")
             }
-        }
+        },
+        containerColor = Color(0xFF0F1219),
+        titleContentColor = Color.White,
+        textContentColor = Color.White
     )
 }
 
 @Composable
-private fun TagsDialog(
-    selectedTags: List<String>,
-    onToggle: (String) -> Unit,
-    onDismiss: () -> Unit
+private fun IngredientsDialog(
+    selectedIngredients: Set<String>,
+    onDismiss: () -> Unit,
+    onToggle: (String) -> Unit
 ) {
+    val commonIngredients = listOf(
+        "Lechuga", "Tomate", "Cebolla", "Pepino", "Aguacate",
+        "Pollo", "Carne", "Pescado", "Camarón", "Atún",
+        "Queso", "Huevo", "Tocino", "Jamón",
+        "Arroz", "Pasta", "Pan", "Tortilla",
+        "Frijoles", "Lentejas", "Garbanzos",
+        "Zanahoria", "Brócoli", "Espinaca", "Calabaza",
+        "Manzana", "Plátano", "Fresa", "Mango",
+        "Aceite de oliva", "Limón", "Sal", "Pimienta"
+    )
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Seleccionar tags dietéticos") },
+        icon = {
+            Icon(
+                Icons.Outlined.Restaurant,
+                contentDescription = null,
+                tint = Color(0xFF4CAF50),
+                modifier = Modifier.size(32.dp)
+            )
+        },
+        title = { Text("Seleccionar ingredientes", fontWeight = FontWeight.Bold) },
         text = {
-            LazyColumn {
-                items(DietaryTags.tags) { tag ->
+            LazyColumn(
+                modifier = Modifier.height(400.dp)
+            ) {
+                items(commonIngredients.size) { index ->
+                    val ingredient = commonIngredients[index]
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onToggle(tag) }
-                            .padding(vertical = 4.dp),
+                            .clickable { onToggle(ingredient) }
+                            .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
-                            checked = selectedTags.contains(tag),
-                            onCheckedChange = { onToggle(tag) }
+                            checked = selectedIngredients.contains(ingredient),
+                            onCheckedChange = { onToggle(ingredient) },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Color(0xFF4CAF50),
+                                uncheckedColor = Color(0xFF8B92A1)
+                            )
                         )
-                        Text(tag, modifier = Modifier.padding(start = 8.dp))
+                        Text(
+                            ingredient,
+                            modifier = Modifier.padding(start = 8.dp),
+                            color = if (selectedIngredients.contains(ingredient)) Color.White else Color(0xFFB7BDC9)
+                        )
                     }
                 }
             }
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Listo")
+                Text("Listo", color = Color(0xFF4CAF50))
             }
-        }
+        },
+        containerColor = Color(0xFF0F1219),
+        titleContentColor = Color.White,
+        textContentColor = Color.White
     )
+}
+
+@Composable
+private fun TagsDialog(
+    selectedTags: Set<String>,
+    onDismiss: () -> Unit,
+    onToggle: (String) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                Icons.Outlined.LocalOffer,
+                contentDescription = null,
+                tint = Color(0xFF4CAF50),
+                modifier = Modifier.size(32.dp)
+            )
+        },
+        title = { Text("Tags dietéticos", fontWeight = FontWeight.Bold) },
+        text = {
+            LazyColumn(
+                modifier = Modifier.height(300.dp)
+            ) {
+                items(DietaryTags.tags.size) { index ->
+                    val tag = DietaryTags.tags[index]
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onToggle(tag) }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = selectedTags.contains(tag),
+                            onCheckedChange = { onToggle(tag) },
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = Color(0xFF4CAF50),
+                                uncheckedColor = Color(0xFF8B92A1)
+                            )
+                        )
+                        Text(
+                            tag,
+                            modifier = Modifier.padding(start = 8.dp),
+                            color = if (selectedTags.contains(tag)) Color.White else Color(0xFFB7BDC9)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Listo", color = Color(0xFF4CAF50))
+            }
+        },
+        containerColor = Color(0xFF0F1219),
+        titleContentColor = Color.White,
+        textContentColor = Color.White
+    )
+}
+
+private fun getCategoryIcon(category: String): androidx.compose.ui.graphics.vector.ImageVector {
+    return when (category.lowercase()) {
+        "desayuno" -> Icons.Outlined.BrunchDining
+        "comida", "almuerzo" -> Icons.Outlined.LunchDining
+        "cena" -> Icons.Outlined.DinnerDining
+        "snack", "botana" -> Icons.Outlined.Fastfood
+        "bebida" -> Icons.Outlined.LocalCafe
+        "postre" -> Icons.Outlined.Cake
+        else -> Icons.Outlined.Restaurant
+    }
 }

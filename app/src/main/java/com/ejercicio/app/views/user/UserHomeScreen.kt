@@ -90,8 +90,14 @@ fun UserHomeScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            Icon(
+                                Icons.Filled.Restaurant,
+                                contentDescription = null,
+                                tint = Color(0xFF4CAF50),
+                                modifier = Modifier.size(28.dp)
+                            )
                             Text(
-                                "🥗 Nutrideli",
+                                "Nutrideli",
                                 fontSize = 24.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -254,7 +260,7 @@ fun UserHomeScreen(
                                 },
                                 onClick = {
                                     showMenuDropdown = false
-                                    // TODO: Implementar direcciones
+                                    navController.navigate("user_addresses")
                                 }
                             )
 
