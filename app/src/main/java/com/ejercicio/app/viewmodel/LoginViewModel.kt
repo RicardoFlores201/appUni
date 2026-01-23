@@ -247,4 +247,8 @@ class LoginViewModel : ViewModel() {
         }
     }
 
+    fun signOut() {
+        auth.signOut()
+    }
+
 }
