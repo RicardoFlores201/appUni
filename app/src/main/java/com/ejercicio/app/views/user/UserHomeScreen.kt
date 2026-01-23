@@ -1,14 +1,17 @@
 package com.ejercicio.app.views.user
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
@@ -25,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.ejercicio.app.model.DishModel
@@ -729,6 +733,7 @@ private fun EmptyState() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FilterDialog(
     selectedCategory: String?,
@@ -740,97 +745,290 @@ private fun FilterDialog(
     var tempCategory by remember { mutableStateOf(selectedCategory) }
     var tempTags by remember { mutableStateOf(selectedTags) }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                Icons.Filled.Tune,
-                contentDescription = null,
-                tint = Color(0xFF4CAF50),
-                modifier = Modifier.size(32.dp)
-            )
-        },
-        title = { Text("Filtros", fontWeight = FontWeight.Bold) },
-        text = {
-            LazyColumn(
-                modifier = Modifier.height(400.dp)
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            shape = RoundedCornerShape(24.dp),
+            color = Color(0xFF0F1219)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp)
             ) {
-                item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = Color(0xFF1A2F2A)
+                        ) {
+                            Icon(
+                                Icons.Filled.Tune,
+                                contentDescription = null,
+                                tint = Color(0xFF4CAF50),
+                                modifier = Modifier
+                                    .padding(12.dp)
+                                    .size(24.dp)
+                            )
+                        }
+
+                        Text(
+                            "Filtros",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            Icons.Filled.Close,
+                            contentDescription = "Cerrar",
+                            tint = Color(0xFF8B92A1)
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
                     Text(
                         "Categoría",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
-                    Spacer(Modifier.height(8.dp))
-                }
 
-                items(DishCategories.categories.size) { index ->
-                    val category = DishCategories.categories[index]
-                    FilterChip(
-                        selected = tempCategory == category,
-                        onClick = {
-                            tempCategory = if (tempCategory == category) null else category
-                        },
-                        label = { Text(category) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Color(0xFF4CAF50),
-                            selectedLabelColor = Color.White
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(4.dp))
-                }
+                    androidx.compose.foundation.layout.FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DishCategories.categories.forEach { category ->
+                            CategoryChip(
+                                text = category,
+                                icon = getCategoryIcon(category),
+                                selected = tempCategory == category,
+                                onClick = {
+                                    tempCategory = if (tempCategory == category) null else category
+                                }
+                            )
+                        }
+                    }
 
-                item {
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(24.dp))
+
                     Text(
-                        "Tags Dietéticos",
+                        "Preferencias dietéticas",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White
+                        color = Color.White,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     )
-                    Spacer(Modifier.height(8.dp))
+
+                    androidx.compose.foundation.layout.FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        DietaryTags.tags.forEach { tag ->
+                            DietaryChip(
+                                text = tag,
+                                icon = getDietaryIcon(tag),
+                                selected = tag in tempTags,
+                                onClick = {
+                                    tempTags = if (tag in tempTags) {
+                                        tempTags - tag
+                                    } else {
+                                        tempTags + tag
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
 
-                items(DietaryTags.tags.size) { index ->
-                    val tag = DietaryTags.tags[index]
-                    FilterChip(
-                        selected = tag in tempTags,
-                        onClick = {
-                            tempTags = if (tag in tempTags) {
-                                tempTags - tag
-                            } else {
-                                tempTags + tag
+                Spacer(Modifier.height(24.dp))
+
+                val activeFilters = (if (tempCategory != null) 1 else 0) + tempTags.size
+                if (activeFilters > 0) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFF1A2F2A)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    Icons.Filled.FilterAlt,
+                                    contentDescription = null,
+                                    tint = Color(0xFF4CAF50),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Text(
+                                    "$activeFilters ${if (activeFilters == 1) "filtro activo" else "filtros activos"}",
+                                    fontSize = 13.sp,
+                                    color = Color(0xFF4CAF50),
+                                    fontWeight = FontWeight.Medium
+                                )
                             }
-                        },
-                        label = { Text(tag) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = Color(0xFF4CAF50),
-                            selectedLabelColor = Color.White
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(Modifier.height(4.dp))
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onClear,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.5.dp, Color(0xFFE53935).copy(alpha = 0.5f)),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Color(0xFFE53935)
+                        )
+                    ) {
+                        Icon(
+                            Icons.Filled.Clear,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "Limpiar",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Button(
+                        onClick = { onApply(tempCategory, tempTags) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4CAF50)
+                        )
+                    ) {
+                        Icon(
+                            Icons.Filled.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "Aplicar",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { onApply(tempCategory, tempTags) }
-            ) {
-                Text("Aplicar", color = Color(0xFF4CAF50))
+        }
+    }
+}
+
+@Composable
+private fun CategoryChip(
+    text: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        color = if (selected) Color(0xFF4CAF50) else Color(0xFF1A1F2E),
+        border = if (selected) null else BorderStroke(1.dp, Color(0xFF2A3142))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = if (selected) Color.White else Color(0xFF8B92A1),
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text,
+                fontSize = 14.sp,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                color = if (selected) Color.White else Color(0xFFB7BDC9)
+            )
+
+            if (selected) {
+                Icon(
+                    Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
+                )
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onClear) {
-                Text("Limpiar", color = Color(0xFFE53935))
-            }
-        },
-        containerColor = Color(0xFF0F1219),
-        titleContentColor = Color.White,
-        textContentColor = Color.White
-    )
+        }
+    }
+}
+
+@Composable
+private fun DietaryChip(
+    text: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(20.dp),
+        color = if (selected) Color(0xFF2E7D32) else Color(0xFF1A1F2E),
+        border = if (selected)
+            BorderStroke(2.dp, Color(0xFF4CAF50))
+        else
+            BorderStroke(1.dp, Color(0xFF2A3142))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = if (selected) Color(0xFF81C784) else Color(0xFF8B92A1),
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text,
+                fontSize = 13.sp,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                color = if (selected) Color.White else Color(0xFFB7BDC9)
+            )
+        }
+    }
 }
 
 @Composable
@@ -886,6 +1084,20 @@ private fun getCategoryIcon(category: String): ImageVector {
         "snack", "botana" -> Icons.Filled.Fastfood
         "bebida" -> Icons.Filled.LocalCafe
         "postre" -> Icons.Filled.Cake
+        else -> Icons.Filled.Restaurant
+    }
+}
+
+private fun getDietaryIcon(tag: String): ImageVector {
+    return when (tag.lowercase()) {
+        "vegano", "vegan" -> Icons.Filled.Eco
+        "vegetariano" -> Icons.Filled.Spa
+        "sin gluten", "gluten free" -> Icons.Filled.HealthAndSafety
+        "keto", "cetogénico" -> Icons.Filled.Favorite
+        "bajo en calorías", "light" -> Icons.Filled.LocalFireDepartment
+        "orgánico", "organic" -> Icons.Filled.LocalFlorist
+        "sin lactosa" -> Icons.Filled.NoFood
+        "alto en proteína" -> Icons.Filled.FitnessCenter
         else -> Icons.Filled.Restaurant
     }
 }
